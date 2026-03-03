@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Diagnostic Report</title>
+
+<style>
+body{
+    margin:0;
+    background:#0a0b10;
+    font-family:sans-serif;
+    color:white;
+    padding:40px;
+}
+
+.report-container{
+    max-width:1000px;
+    margin:auto;
+}
+
+.main-card{
+    padding:40px;
+    border-radius:20px;
+    margin-bottom:30px;
+    text-align:center;
+}
+
+.green{
+    border:2px solid #22c55e;
+    background:rgba(34,197,94,0.1);
+}
+
+.red{
+    border:2px solid #ef4444;
+    background:rgba(239,68,68,0.1);
+}
+
+.status-icon{
+    font-size:50px;
+    margin-bottom:15px;
+}
+
+.details-card{
+    background:#111;
+    padding:25px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+
+.confidence-bar{
+    height:20px;
+    border-radius:20px;
+    margin-top:15px;
+}
+
+.green-bar{
+    background:#22c55e;
+}
+
+.red-bar{
+    background:#ef4444;
+}
+</style>
+</head>
+
+<body>
+
+<div class="report-container">
+
+<h1>Diagnostic Report</h1>
+
+{% if prediction == "Uninfected" %}
+
+<div class="main-card green">
+    <div class="status-icon">✔</div>
+    <h2>UNINFECTED</h2>
+    <p>No malaria parasites detected</p>
+</div>
+
+{% else %}
+
+<div class="main-card red">
+    <div class="status-icon">!</div>
+    <h2>PARASITIZED</h2>
+    <p>Malaria parasites detected</p>
+</div>
+
+{% endif %}
+
+<div class="details-card">
+    <h3>Analysis Details</h3>
+    <p><strong>Model:</strong> CustomCNN v2.0</p>
+    <p><strong>Processing Time:</strong> {{ time }}s</p>
+    <p><strong>Timestamp:</strong> {{ timestamp }}</p>
+</div>
+
+<div class="details-card">
+    <h3>Confidence Level: {{ confidence }}%</h3>
+
+    {% if prediction == "Uninfected" %}
+        <div class="confidence-bar green-bar" style="width: {{ confidence }}%;"></div>
+    {% else %}
+        <div class="confidence-bar red-bar" style="width: {{ confidence }}%;"></div>
+    {% endif %}
+</div>
+
+<div class="details-card">
+    <h3>Medical Disclaimer</h3>
+    <p>
+    This AI system is a screening tool for healthcare professionals.
+    Results must be verified by qualified medical personnel.
+    Not a substitute for professional diagnosis.
+    </p>
+</div>
+
+</div>
+
+</body>
+</html>

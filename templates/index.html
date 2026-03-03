@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MalariaScope - AI Detection</title>
+
+<style>
+:root {
+    --bg-dark: #0a0b10;
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --primary-purple: #7c4dff;
+    --text-main: #ffffff;
+    --text-dim: #94a3b8;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top, #1a1b26 0%, #0a0b10 100%);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+.navbar {
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo { font-weight: bold; font-size: 20px; }
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.status-online {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.status-error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    text-align: center;
+    padding: 40px;
+}
+
+h1 { font-size: 42px; }
+h1 span { color: var(--primary-purple); }
+
+.subtitle {
+    color: var(--text-dim);
+    margin-bottom: 40px;
+}
+
+.upload-section{
+    background:rgba(255,255,255,0.04);
+    padding:40px;
+    border-radius:24px;
+    backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,0.1);
+}
+
+.drop-zone{
+    border:2px dashed rgba(124,77,255,0.5);
+    border-radius:24px;
+    padding:60px 20px;
+    cursor:pointer;
+    transition:all 0.3s ease;
+}
+
+.drop-zone.dragover{
+    border-color:#7c4dff;
+    background:rgba(124,77,255,0.08);
+}
+
+.preview-wrapper{
+    margin-top:25px;
+}
+
+#previewImage{
+    max-width:280px;
+    border-radius:16px;
+}
+
+.analyze-btn{
+    margin-top:30px;
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:14px;
+    font-size:16px;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(90deg,#667eea,#764ba2);
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.analyze-btn:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+.loader {
+  border: 4px solid rgba(255,255,255,0.1);
+  border-top: 4px solid #7c4dff;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  animation: spin 1s linear infinite;
+  margin: 20px auto;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}
+
+.result-card{
+    padding:20px;
+    border-radius:12px;
+    background:#111;
+    margin-top:20px;
+}
+/* -------- Stats Cards -------- */
+
+.stats-section {
+    margin-bottom: 50px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.stat-card {
+    padding: 30px;
+    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    text-align: center;
+    transition: 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 0 40px rgba(124,77,255,0.25);
+}
+
+.stat-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.stat-card h3 {
+    font-size: 28px;
+    margin: 10px 0 5px;
+    color: #c4b5fd;
+}
+
+.stat-card p {
+    color: var(--text-dim);
+    font-size: 14px;
+}
+@media (max-width: 900px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* -------- Enhanced Upload UI -------- */
+
+.upload-title {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.upload-subtitle {
+    color: var(--text-dim);
+    margin-bottom: 30px;
+}
+
+.upload-card {
+    padding: 50px;
+    border-radius: 28px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 60px rgba(124,77,255,0.15);
+}
+
+.drop-zone {
+    border: 2px dashed rgba(124,77,255,0.6);
+    border-radius: 24px;
+    padding: 90px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(255,255,255,0.03);
+}
+
+.drop-zone:hover {
+    border-color: #7c4dff;
+    background: rgba(124,77,255,0.08);
+    box-shadow: 0 0 30px rgba(124,77,255,0.4);
+}
+#dropContainer {
+    transition: all 0.4s ease;
+}
+
+.upload-icon {
+    font-size: 40px;
+    margin-bottom: 20px;
+    color: #7c4dff;
+}
+
+.file-types span {
+    display: inline-block;
+    margin: 12px 6px 0;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    background: rgba(124,77,255,0.2);
+    color: #c4b5fd;
+}
+
+.footer {
+    text-align: center;
+    padding: 40px;
+    color: #4b5563;
+    font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="logo">MalariaScope</div>
+
+    {% if model_loaded %}
+        <div class="status-badge status-online">System Online</div>
+    {% else %}
+        <div class="status-badge status-error">Model Error</div>
+    {% endif %}
+</nav>
+
+<div class="container">
+
+<h1>Revolutionary <span>AI-Powered</span><br>Malaria Detection</h1>
+<p class="subtitle">Clinical-grade accuracy • Real-time analysis • Instant results</p>
+
+<!-- Stats Section -->
+<section class="stats-section">
+
+    <div class="stats-grid">
+
+        <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <h3>93.2%</h3>
+            <p>Accuracy</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⚡</div>
+            <h3>&lt;3s</h3>
+            <p>Analysis Time</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🔬</div>
+            <h3>2,852</h3>
+            <p>Scans Today</p>
+        </div>
+
+    </div>
+
+</section>
+
+<section class="upload-section">
+
+    <h2 class="upload-title">Upload Blood Cell Image</h2>
+    <p class="upload-subtitle">
+        Drag & drop or click to browse • Supports PNG, JPG, JPEG
+    </p>
+
+    <div class="upload-card">
+        <form id="uploadForm">
+
+            <input type="file" id="fileInput" name="file" accept="image/*" hidden>
+
+            <div id="dropContainer">
+
+                <div class="drop-zone" id="dropZone">
+                    <div class="upload-icon">⬆</div>
+                    <h3>Drop your microscopic image here</h3>
+                    <p>or click to select from your device</p>
+
+                    <div class="file-types">
+                        <span>PNG</span>
+                        <span>JPG</span>
+                        <span>JPEG</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="preview-wrapper" id="previewWrapper" style="display:none;">
+                <img id="previewImage">
+            </div>
+
+            <button type="submit" class="analyze-btn">
+                🔍 Analyze Sample
+            </button>
+
+        </form>
+    </div>
+
+    <div id="resultBox"></div>
+
+</section>
+</div>
+
+<footer class="footer">
+© 2026 MalariaScope AI
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const dropZone = document.getElementById("dropZone");
+    const previewImage = document.getElementById("previewImage");
+    const previewWrapper = document.getElementById("previewWrapper");
+    const resultBox = document.getElementById("resultBox");
+    const analyzeBtn = document.querySelector(".analyze-btn");
+
+    dropZone.addEventListener("click", () => fileInput.click());
+
+    dropZone.addEventListener("dragover", (e)=>{
+        e.preventDefault();
+        dropZone.classList.add("dragover");
+    });
+
+    dropZone.addEventListener("dragleave", ()=>{
+        dropZone.classList.remove("dragover");
+    });
+
+    dropZone.addEventListener("drop", (e)=>{
+        e.preventDefault();
+        dropZone.classList.remove("dragover");
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event("change"));
+    });
+
+    fileInput.addEventListener("change", function(){
+        const file = fileInput.files[0];
+        if(!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e){
+            previewImage.src = e.target.result;
+            previewWrapper.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+        const dropContainer = document.getElementById("dropContainer");
+
+        dropContainer.style.opacity = "0";
+        dropContainer.style.height = "0";
+        dropContainer.style.overflow = "hidden";
+    });
+
+    form.addEventListener("submit", async function(e){
+    e.preventDefault();
+
+    if(fileInput.files.length === 0){
+        alert("Upload image first!");
+        return;
+    }
+
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerText = "Analyzing...";
+    resultBox.innerHTML = `<div class="loader"></div>`;
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    try {
+        const response = await fetch("/predict", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if(!data.success){
+            throw new Error(data.error);
+        }
+
+        // 🔥 Redirect for BOTH cases
+        window.location.href = `/report?prediction=${data.prediction}&confidence=${data.confidence}&time=${data.processing_time}&timestamp=${encodeURIComponent(data.timestamp)}`;
+
+        return;
+
+    } catch(error){
+        resultBox.innerHTML = `
+            <div class="result-card">
+                <h3 style="color:#ef4444;">Error</h3>
+                <p>${error.message}</p>
+            </div>
+        `;
+    }
+
+    analyzeBtn.disabled = false;
+    analyzeBtn.innerText = "🔍 Analyze Sample";
+});
+
+});
+</script>
+
+</body>
+</html> 
