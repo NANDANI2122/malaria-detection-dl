@@ -45,7 +45,7 @@ malaria-detection/
 ## ⚙ Setup Instructions
 
 ### 1️⃣ Clone Repository
-git clone https://github.com/yourusername/malaria-detection.git
+git clone https://github.com/NANDANI2122/malaria-detection-dl.git
 
 cd malaria-detection
 
